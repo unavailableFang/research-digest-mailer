@@ -27,7 +27,7 @@ def load_mail_settings() -> MailSettings:
         host=os.environ["SMTP_HOST"],
         port=int(os.environ.get("SMTP_PORT", "465")),
         username=os.environ["SMTP_USER"],
-        password=os.environ["SMTP_PASSWORD"],
+        password=_clean_secret(os.environ["SMTP_PASSWORD"]),
         sender=os.environ.get("MAIL_FROM", os.environ["SMTP_USER"]),
         recipients=recipients,
         use_ssl=os.environ.get("SMTP_SSL", "true").lower() in {"1", "true", "yes"},
@@ -35,6 +35,10 @@ def load_mail_settings() -> MailSettings:
     if not settings.recipients:
         raise ValueError("MAIL_TO is required. Use commas for multiple recipients.")
     return settings
+
+
+def _clean_secret(value: str) -> str:
+    return "".join(value.split())
 
 
 def send_email(settings: MailSettings, subject: str, text: str, html: str) -> None:
