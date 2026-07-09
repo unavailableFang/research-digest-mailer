@@ -1,0 +1,298 @@
+[digest]
+title = "每日科研进展"
+subtitle = "影响因子大于 10 的期刊最新发表论文"
+timezone = "Asia/Hong_Kong"
+days_back = 7
+max_items = 12
+minimum_impact_factor = 10
+
+keywords = [
+  "smart window",
+  "radiative cooling",
+  "micro/nano manufacturing",
+  "micro nano manufacturing",
+  "micronano manufacturing",
+  "3D printing",
+  "additive manufacturing"
+]
+
+# 影响因子每年会变，下面是启动用白名单。请按你手头的最新版 JCR/期刊官网数据更新。
+[[journals]]
+name = "Nature"
+impact_factor = 56.1
+
+[[journals]]
+name = "Science"
+impact_factor = 44.7
+
+[[journals]]
+name = "Science Advances"
+impact_factor = 12.5
+
+[[journals]]
+name = "Advanced Science"
+impact_factor = 14.1
+
+[[journals]]
+name = "Light: Science & Applications"
+impact_factor = 24.0
+
+[[journals]]
+name = "Nature Communications"
+impact_factor = 18.1
+
+[[journals]]
+name = "Nature Astronomy"
+impact_factor = 15.2
+
+[[journals]]
+name = "Nature Biomedical Engineering"
+impact_factor = 26.3
+
+[[journals]]
+name = "Nature Biotechnology"
+impact_factor = 44.5
+
+[[journals]]
+name = "Nature Cancer"
+impact_factor = 28.0
+
+[[journals]]
+name = "Nature Catalysis"
+impact_factor = 48.3
+
+[[journals]]
+name = "Nature Cell Biology"
+impact_factor = 22.7
+
+[[journals]]
+name = "Nature Chemical Biology"
+impact_factor = 15.8
+
+[[journals]]
+name = "Nature Chemistry"
+impact_factor = 24.5
+
+[[journals]]
+name = "Nature Climate Change"
+impact_factor = 26.9
+
+[[journals]]
+name = "Nature Computational Science"
+impact_factor = 20.3
+
+[[journals]]
+name = "Nature Ecology & Evolution"
+impact_factor = 17.1
+
+[[journals]]
+name = "Nature Electronics"
+impact_factor = 42.3
+
+[[journals]]
+name = "Nature Energy"
+impact_factor = 70.1
+
+[[journals]]
+name = "Nature Food"
+impact_factor = 24.7
+
+[[journals]]
+name = "Nature Genetics"
+impact_factor = 25.5
+
+[[journals]]
+name = "Nature Geoscience"
+impact_factor = 20.6
+
+[[journals]]
+name = "Nature Human Behaviour"
+impact_factor = 17.5
+
+[[journals]]
+name = "Nature Immunology"
+impact_factor = 26.5
+
+[[journals]]
+name = "Nature Machine Intelligence"
+impact_factor = 29.8
+
+[[journals]]
+name = "Nature Materials"
+impact_factor = 38.0
+
+[[journals]]
+name = "Nature Medicine"
+impact_factor = 52.5
+
+[[journals]]
+name = "Nature Metabolism"
+impact_factor = 27.5
+
+[[journals]]
+name = "Nature Methods"
+impact_factor = 28.3
+
+[[journals]]
+name = "Nature Microbiology"
+impact_factor = 18.7
+
+[[journals]]
+name = "Nature Nanotechnology"
+impact_factor = 37.5
+
+[[journals]]
+name = "Nature Neuroscience"
+impact_factor = 20.3
+
+[[journals]]
+name = "Nature Photonics"
+impact_factor = 38.1
+
+[[journals]]
+name = "Nature Physics"
+impact_factor = 18.0
+
+[[journals]]
+name = "Nature Plants"
+impact_factor = 15.0
+
+[[journals]]
+name = "Nature Protocols"
+impact_factor = 18.4
+
+[[journals]]
+name = "Nature Structural and Molecular Biology"
+impact_factor = 10.1
+
+[[journals]]
+name = "Nature Sustainability"
+impact_factor = 32.1
+
+[[journals]]
+name = "Nature Reviews Cancer"
+impact_factor = 60.7
+
+[[journals]]
+name = "Nature Reviews Cardiology"
+impact_factor = 50.2
+
+[[journals]]
+name = "Nature Reviews Chemistry"
+impact_factor = 50.3
+
+[[journals]]
+name = "Nature Reviews Clinical Oncology"
+impact_factor = 94.6
+
+[[journals]]
+name = "Nature Reviews Disease Primers"
+impact_factor = 79.8
+
+[[journals]]
+name = "Nature Reviews Drug Discovery"
+impact_factor = 91.2
+
+[[journals]]
+name = "Nature Reviews Earth & Environment"
+impact_factor = 74.1
+
+[[journals]]
+name = "Nature Reviews Endocrinology"
+impact_factor = 39.1
+
+[[journals]]
+name = "Nature Reviews Gastroenterology & Hepatology"
+impact_factor = 57.5
+
+[[journals]]
+name = "Nature Reviews Genetics"
+impact_factor = 51.4
+
+[[journals]]
+name = "Nature Reviews Immunology"
+impact_factor = 47.1
+
+[[journals]]
+name = "Nature Reviews Materials"
+impact_factor = 83.3
+
+[[journals]]
+name = "Nature Reviews Methods Primers"
+impact_factor = 54.2
+
+[[journals]]
+name = "Nature Reviews Microbiology"
+impact_factor = 104.6
+
+[[journals]]
+name = "Nature Reviews Molecular Cell Biology"
+impact_factor = 118.0
+
+[[journals]]
+name = "Nature Reviews Nephrology"
+impact_factor = 46.7
+
+[[journals]]
+name = "Nature Reviews Neurology"
+impact_factor = 31.2
+
+[[journals]]
+name = "Nature Reviews Neuroscience"
+impact_factor = 29.0
+
+[[journals]]
+name = "Nature Reviews Physics"
+impact_factor = 46.6
+
+[[journals]]
+name = "Nature Reviews Psychology"
+impact_factor = 22.0
+
+[[journals]]
+name = "Nature Reviews Rheumatology"
+impact_factor = 33.7
+
+[[journals]]
+name = "Nature Reviews Urology"
+impact_factor = 13.6
+
+[[journals]]
+name = "Advanced Materials"
+impact_factor = 27.4
+
+[[journals]]
+name = "Advanced Energy Materials"
+impact_factor = 24.4
+
+[[journals]]
+name = "Advanced Functional Materials"
+impact_factor = 18.5
+
+[[journals]]
+name = "Nano Letters"
+impact_factor = 10.8
+
+[[journals]]
+name = "ACS Nano"
+impact_factor = 15.8
+
+[[journals]]
+name = "Matter"
+impact_factor = 17.3
+
+[[journals]]
+name = "Joule"
+impact_factor = 38.6
+
+[[journals]]
+name = "Energy & Environmental Science"
+impact_factor = 32.5
+
+[[journals]]
+name = "Chemical Reviews"
+impact_factor = 51.4
+
+[[journals]]
+name = "Progress in Materials Science"
+impact_factor = 33.6

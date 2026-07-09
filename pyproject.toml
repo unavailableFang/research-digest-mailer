@@ -1,0 +1,23 @@
+[project]
+name = "research-digest-mailer"
+version = "0.1.0"
+description = "Daily research progress digest sent as responsive email."
+requires-python = ">=3.9"
+dependencies = ["tomli>=2.0; python_version < '3.11'"]
+
+[project.optional-dependencies]
+dev = ["pytest>=8.0"]
+
+[project.scripts]
+research-digest = "research_digest.cli:main"
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
+
+[build-system]
+requires = ["setuptools>=64"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]

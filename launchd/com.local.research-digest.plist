@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>com.local.research-digest</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>/usr/bin/env</string>
+    <string>bash</string>
+    <string>-lc</string>
+    <string>cd /Users/fangyanbo/Documents/信息推送助手 &amp;&amp; .venv/bin/python -m research_digest.cli</string>
+  </array>
+  <key>StartCalendarInterval</key>
+  <dict>
+    <key>Hour</key>
+    <integer>9</integer>
+    <key>Minute</key>
+    <integer>0</integer>
+  </dict>
+  <key>StandardOutPath</key>
+  <string>/tmp/research-digest.out.log</string>
+  <key>StandardErrorPath</key>
+  <string>/tmp/research-digest.err.log</string>
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>PYTHONPATH</key>
+    <string>/Users/fangyanbo/Documents/信息推送助手/src</string>
+    <key>SMTP_HOST</key>
+    <string>smtp.gmail.com</string>
+    <key>SMTP_PORT</key>
+    <string>465</string>
+    <key>SMTP_USER</key>
+    <string>fangyanbo970926@gmail.com</string>
+    <key>SMTP_PASSWORD</key>
+    <string>paste-your-gmail-app-password-here</string>
+    <key>MAIL_FROM</key>
+    <string>fangyanbo970926@gmail.com</string>
+    <key>MAIL_TO</key>
+    <string>fangyanbo970926@gmail.com</string>
+  </dict>
+</dict>
+</plist>
