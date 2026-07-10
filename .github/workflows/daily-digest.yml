@@ -3,8 +3,8 @@ name: Daily Research Digest
 on:
   workflow_dispatch:
   schedule:
-    # 10:20 Asia/Hong_Kong is 02:20 UTC. Avoid the top-of-hour Actions queue.
-    - cron: "20 2 * * *"
+    # 10:45 Asia/Hong_Kong is 02:45 UTC. Temporary schedule trigger test.
+    - cron: "45 2 * * *"
 
 jobs:
   send:
