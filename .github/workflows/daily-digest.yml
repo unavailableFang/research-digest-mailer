@@ -3,8 +3,8 @@ name: Daily Research Digest
 on:
   workflow_dispatch:
   schedule:
-    # 09:00 Asia/Hong_Kong is 01:00 UTC.
-    - cron: "0 1 * * *"
+    # 02:00 Asia/Hong_Kong is 18:00 UTC on the previous day.
+    - cron: "0 18 * * *"
 
 jobs:
   send:
