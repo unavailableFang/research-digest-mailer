@@ -40,6 +40,32 @@ def test_render_outputs_responsive_html_and_plain_text():
     assert "中文摘要" in text
 
 
+def test_render_keeps_full_abstracts():
+    config = _config()
+    full_summary = " ".join(f"sentence-{index}" for index in range(160))
+    full_summary_zh = " ".join(f"中文句子{index}" for index in range(160))
+    paper = Paper(
+        id="10.0000/full",
+        title="Full Abstract Test",
+        authors=("Ada Lovelace",),
+        summary=full_summary,
+        summary_zh=full_summary_zh,
+        published=datetime(2026, 7, 8, tzinfo=timezone.utc).date(),
+        link="https://doi.org/10.0000/full",
+        image_url="",
+        source_urls=("https://doi.org/10.0000/full",),
+        journal="Advanced Materials",
+        impact_factor=27.4,
+        matched_keywords=("smart window",),
+    )
+
+    html = render_html(config, [paper], datetime(2026, 7, 8, tzinfo=timezone.utc))
+
+    assert full_summary in html
+    assert full_summary_zh in html
+    assert "..." not in html
+
+
 def _config():
     return DigestConfig(
         title="每日科研进展",

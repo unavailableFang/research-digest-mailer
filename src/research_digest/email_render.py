@@ -247,7 +247,6 @@ def _render_paper(index: int, paper: Paper) -> str:
     authors = ", ".join(paper.authors[:5])
     if len(paper.authors) > 5:
         authors += " et al."
-    summary = _trim(paper.summary, 720)
     summary_zh = paper.summary_zh or "未配置翻译或翻译暂不可用。"
     image_cell = ""
     if paper.image_url:
@@ -267,9 +266,9 @@ def _render_paper(index: int, paper: Paper) -> str:
               <tr>
                 <td>
                   <p class="summary-title">英文摘要</p>
-                  <p class="summary">{escape(summary)}</p>
+                  <p class="summary">{escape(paper.summary)}</p>
                   <p class="summary-title">中文摘要</p>
-                  <p class="summary">{escape(_trim(summary_zh, 620))}</p>
+                  <p class="summary">{escape(summary_zh)}</p>
                 </td>
                 {image_cell}
               </tr>
@@ -278,9 +277,3 @@ def _render_paper(index: int, paper: Paper) -> str:
           </td>
         </tr>
     """
-
-
-def _trim(value: str, limit: int) -> str:
-    if len(value) <= limit:
-        return value
-    return value[: limit - 1].rstrip() + "..."

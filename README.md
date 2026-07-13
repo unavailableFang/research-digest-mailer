@@ -92,16 +92,24 @@ PYTHONPATH=src python3 -m research_digest.cli --dry-run
 PYTHONPATH=src python3 -m research_digest.cli --include-sent
 ```
 
-邮件会尝试从每篇文章页面的 `og:image`、`twitter:image` 或 `citation_image` 元数据提取图片摘要或代表图。不是所有期刊页面都会提供可用于邮件显示的图片。
+邮件会显示 Crossref 提供的完整英文 Abstract，不再截断。若配置了翻译 API，也会显示完整中文翻译。
 
-中文摘要使用 OpenAI API 生成。设置 `OPENAI_API_KEY` 后会自动翻译；也可以用 `OPENAI_MODEL` 指定模型：
+邮件会尝试从每篇文章页面提取图片摘要或代表图。当前会依次检查 `citation_image`、`og:image`、`twitter:image` 等元数据、JSON-LD 里的 article image、`link rel=image_src/preload`，以及页面中的高相关图片候选。不是所有期刊页面都会提供可用于邮件显示的图片；若页面反爬、图片懒加载或只在搜索页展示，邮件可能仍然没有图片。
+
+中文摘要使用 Google Cloud Translation API Basic v2。设置 `GOOGLE_TRANSLATE_API_KEY` 后会自动翻译：
 
 ```bash
-export OPENAI_API_KEY=sk-...
-export OPENAI_MODEL=gpt-5.5
+export GOOGLE_TRANSLATE_API_KEY=你的 Google Translation API key
 ```
 
-如果没有设置 `OPENAI_API_KEY`，邮件仍会正常发送，只是中文摘要位置会显示“未配置翻译或翻译暂不可用”。
+可选：默认从英文翻译到简体中文。如果需要调整语言，可设置：
+
+```bash
+export GOOGLE_TRANSLATE_SOURCE=en
+export GOOGLE_TRANSLATE_TARGET=zh-CN
+```
+
+如果没有设置 `GOOGLE_TRANSLATE_API_KEY`，邮件仍会正常发送，只是中文摘要位置会显示“未配置翻译或翻译暂不可用”。
 
 ## 5. 每天上午 9 点自动推送
 
@@ -111,9 +119,9 @@ export OPENAI_MODEL=gpt-5.5
 
 `SMTP_HOST`、`SMTP_PORT`、`SMTP_USER`、`SMTP_PASSWORD`、`SMTP_SSL`、`MAIL_FROM`、`MAIL_TO`
 
-如果要生成中文摘要，再添加 `OPENAI_API_KEY`；可选添加 `OPENAI_MODEL`。GitHub Actions 会缓存 `.digest-state`，用于跨天记录已推送 DOI。
+如果要生成中文摘要，再添加 `GOOGLE_TRANSLATE_API_KEY`。GitHub Actions 会缓存 `.digest-state`，用于跨天记录已推送 DOI。
 
-[.github/workflows/daily-digest.yml](/Users/fangyanbo/Documents/信息推送助手/.github/workflows/daily-digest.yml) 已设置为每天 `01:00 UTC` 运行，也就是香港时间上午 9 点。
+[.github/workflows/daily-digest.yml](/Users/fangyanbo/Documents/信息推送助手/.github/workflows/daily-digest.yml) 已设置为每天 `18:00 UTC` 运行，也就是香港时间凌晨 2 点。
 
 ### 方案 B：macOS launchd
 

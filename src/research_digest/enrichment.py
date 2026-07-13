@@ -6,7 +6,7 @@ from html.parser import HTMLParser
 import json
 import os
 import re
-from urllib.parse import urljoin
+from urllib.parse import urlencode, urljoin
 from urllib.request import Request, urlopen
 
 from .crossref import Paper
@@ -16,15 +16,60 @@ class _MetaParser(HTMLParser):
     def __init__(self) -> None:
         super().__init__()
         self.meta: dict[str, str] = {}
+        self.link_images: list[str] = []
+        self.images: list[tuple[str, str]] = []
+        self.json_ld_blocks: list[str] = []
+        self._script_type = ""
+        self._script_parts: list[str] = []
 
     def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
-        if tag.lower() != "meta":
-            return
+        tag = tag.lower()
         data = {key.lower(): value or "" for key, value in attrs}
-        key = data.get("property") or data.get("name")
-        content = data.get("content")
-        if key and content:
-            self.meta[key.lower()] = unescape(content.strip())
+        if tag == "script":
+            self._script_type = data.get("type", "").lower()
+            self._script_parts = []
+            return
+        if tag == "meta":
+            key = data.get("property") or data.get("name")
+            content = data.get("content")
+            if key and content:
+                self.meta[key.lower()] = unescape(content.strip())
+            return
+        if tag == "link":
+            rel = data.get("rel", "").lower()
+            href = data.get("href", "")
+            if href and any(name in rel for name in ("image_src", "preload")):
+                if not rel or data.get("as", "").lower() in ("", "image") or "image_src" in rel:
+                    self.link_images.append(unescape(href.strip()))
+            return
+        if tag == "img":
+            src = (
+                data.get("src")
+                or data.get("data-src")
+                or data.get("data-original")
+                or data.get("data-lazy-src")
+                or data.get("data-image")
+            )
+            if src:
+                context = " ".join(
+                    data.get(key, "")
+                    for key in ("alt", "title", "class", "id", "src")
+                    if data.get(key)
+                )
+                self.images.append((unescape(src.strip()), unescape(context.strip())))
+
+    def handle_data(self, data: str) -> None:
+        if self._script_type == "application/ld+json":
+            self._script_parts.append(data)
+
+    def handle_endtag(self, tag: str) -> None:
+        if tag.lower() == "script" and self._script_type == "application/ld+json":
+            block = "".join(self._script_parts).strip()
+            if block:
+                self.json_ld_blocks.append(block)
+        if tag.lower() == "script":
+            self._script_type = ""
+            self._script_parts = []
 
 
 def enrich_papers(papers: list[Paper], translate: bool = True) -> list[Paper]:
@@ -65,10 +110,28 @@ def fetch_image_url(url: str) -> str:
 
     parser = _MetaParser()
     parser.feed(html)
-    for key in ("og:image", "twitter:image", "citation_image"):
+    for key in (
+        "citation_image",
+        "dc.source.image",
+        "prism.image",
+        "og:image",
+        "og:image:url",
+        "og:image:secure_url",
+        "twitter:image",
+        "twitter:image:src",
+    ):
         image_url = parser.meta.get(key)
-        if image_url:
+        if image_url and _looks_like_article_image(image_url):
             return urljoin(final_url, image_url)
+    for image_url in _json_ld_images(parser.json_ld_blocks):
+        if image_url and _looks_like_article_image(image_url):
+            return urljoin(final_url, image_url)
+    for image_url in parser.link_images:
+        if image_url and _looks_like_article_image(image_url):
+            return urljoin(final_url, image_url)
+    best = _best_html_image(parser.images)
+    if best:
+        return urljoin(final_url, best)
     return ""
 
 
@@ -76,31 +139,26 @@ def translate_to_chinese(text: str) -> str:
     text = " ".join(text.split())
     if not text or text == "Crossref record does not include an abstract.":
         return ""
-    api_key = os.environ.get("OPENAI_API_KEY")
+    api_key = os.environ.get("GOOGLE_TRANSLATE_API_KEY") or os.environ.get(
+        "GOOGLE_TRANSLATION_API_KEY"
+    )
     if not api_key:
         return ""
 
-    model = os.environ.get("OPENAI_MODEL", "gpt-5.5")
-    prompt = (
-        "请把下面的科研论文英文摘要翻译成简洁、准确、适合邮件阅读的中文。"
-        "保留材料、器件、性能指标和专有名词的准确含义，不要添加原文没有的信息。\n\n"
-        + _trim_for_translation(text)
-    )
-    payload = {
-        "model": model,
-        "input": [
-            {
-                "role": "user",
-                "content": [{"type": "input_text", "text": prompt}],
-            }
-        ],
-    }
+    payload = urlencode(
+        {
+            "q": text,
+            "target": os.environ.get("GOOGLE_TRANSLATE_TARGET", "zh-CN"),
+            "source": os.environ.get("GOOGLE_TRANSLATE_SOURCE", "en"),
+            "format": "text",
+            "key": api_key,
+        }
+    ).encode("utf-8")
     request = Request(
-        "https://api.openai.com/v1/responses",
-        data=json.dumps(payload).encode("utf-8"),
+        "https://translation.googleapis.com/language/translate/v2",
+        data=payload,
         headers={
-            "Authorization": f"Bearer {api_key}",
-            "Content-Type": "application/json",
+            "Content-Type": "application/x-www-form-urlencoded",
             "User-Agent": "research-digest-mailer/0.1",
         },
         method="POST",
@@ -110,23 +168,107 @@ def translate_to_chinese(text: str) -> str:
             data = json.loads(response.read().decode("utf-8"))
     except Exception:
         return ""
-    return _extract_response_text(data)
+    translations = data.get("data", {}).get("translations", [])
+    if not translations:
+        return ""
+    translated = translations[0].get("translatedText", "")
+    return " ".join(unescape(translated).split())
 
 
-def _extract_response_text(data: dict) -> str:
-    if isinstance(data.get("output_text"), str):
-        return " ".join(data["output_text"].split())
-    parts: list[str] = []
-    for item in data.get("output", []):
-        for content in item.get("content", []):
-            text = content.get("text")
-            if isinstance(text, str):
-                parts.append(text)
-    return " ".join(" ".join(parts).split())
+def _json_ld_images(blocks: list[str]) -> list[str]:
+    images: list[str] = []
+    for block in blocks:
+        try:
+            payload = json.loads(block)
+        except json.JSONDecodeError:
+            continue
+        images.extend(_extract_json_images(payload))
+    return images
 
 
-def _trim_for_translation(text: str, limit: int = 2400) -> str:
-    text = re.sub(r"\s+", " ", text).strip()
-    if len(text) <= limit:
-        return text
-    return text[: limit - 1].rstrip() + "..."
+def _extract_json_images(value: object) -> list[str]:
+    if isinstance(value, dict):
+        images: list[str] = []
+        image = value.get("image") or value.get("thumbnailUrl")
+        kind = value.get("@type", "")
+        kinds = {kind.lower()} if isinstance(kind, str) else set()
+        if isinstance(kind, list):
+            kinds = {str(item).lower() for item in kind}
+        if "imageobject" in kinds:
+            image = image or value.get("contentUrl") or value.get("url")
+        if isinstance(image, str):
+            images.append(image)
+        elif isinstance(image, list):
+            for item in image:
+                images.extend(_extract_json_images(item))
+        elif isinstance(image, dict):
+            images.extend(_extract_json_images(image))
+        for key in ("@graph", "mainEntity", "hasPart"):
+            images.extend(_extract_json_images(value.get(key)))
+        return images
+    if isinstance(value, list):
+        images = []
+        for item in value:
+            images.extend(_extract_json_images(item))
+        return images
+    return []
+
+
+def _best_html_image(images: list[tuple[str, str]]) -> str:
+    best_url = ""
+    best_score = 0
+    for url, context in images:
+        if not _looks_like_article_image(url):
+            continue
+        score = _image_score(url, context)
+        if score > best_score:
+            best_url = url
+            best_score = score
+    return best_url
+
+
+def _looks_like_article_image(url: str) -> bool:
+    value = url.lower()
+    if not value or value.startswith("data:"):
+        return False
+    blocked = (
+        "logo",
+        "icon",
+        "sprite",
+        "avatar",
+        "profile",
+        "placeholder",
+        "transparent",
+        "tracking",
+        "pixel",
+        "ads",
+        "advert",
+    )
+    return not any(token in value for token in blocked)
+
+
+def _image_score(url: str, context: str) -> int:
+    haystack = f"{url} {context}".lower()
+    score = 1
+    for token in (
+        "figure",
+        "fig",
+        "article",
+        "main",
+        "media",
+        "image",
+        "graphic",
+        "graphical",
+        "abstract",
+        "thumbnail",
+        "featured",
+        "asset",
+        "nature.com/articles",
+    ):
+        if token in haystack:
+            score += 2
+    if re.search(r"\.(jpg|jpeg|png|webp)(\?|$)", haystack):
+        score += 2
+    if "supplementary" in haystack or "author" in haystack:
+        score -= 2
+    return score
